@@ -87,7 +87,7 @@ function oncontentready(classID) {
 	rect.style.width = rect_size.width +'px';
 	rect.style.height = rect_size.height +'px';
 	rect.style.antialias = true;
-	rect.style.zIndex = el_zindex - 1;
+	rect.style.zIndex = el_zindex; // - 1;
 
 	var fill = document.createElement('v:fill');
 	fill.color = fillColor;
@@ -116,6 +116,8 @@ function oncontentready(classID) {
 		window.onresize = window_resize;
 	}
 	this.element.vml = rect;
+	this.style.position = 'relative';
+	this.style.zIndex = 1;
 	window.rounded_elements.push(this.element);
 }
 
