@@ -15,17 +15,9 @@ Changes by Tyler Waters, BCGOV
 - various other improvements
 Published date: 2011-09-29
 
-<public:attach event="ondocumentready" onevent="ondocumentready()" />
-
 <public:attach event="oncontentready" onevent="oncontentready('v08vnSVo78t4JfjH')" />
 
 <script type="text/javascript">
-
-var css2
-function ondocumentready(){
-    //console.log("ondocumentready: " + this.id)
-    if( css2 ) { css2.disabled = false }
-}
 
 function oncontentready(clsid){
 
@@ -35,16 +27,16 @@ function oncontentready(clsid){
     if (this.className.match(clsid)) { return(false); }
   	// add VML bits to the document (v: namespace, as well as default style rule that must be present for VML )
   	
-	if (!document.namespaces.v) { document.namespaces.add("v", "urn:schemas-microsoft-com:vml"); }
+	if (!document.namespaces.v) { document.namespaces.add("vml", "urn:schemas-microsoft-com:vml"); }
 	for( var s=window.document.styleSheets, x=s.length-1; x>=0; x-=1 ) if(s[x].title==="VML") break; 
 	if( x === -1 ) {  
 	    var vmlcss = window.document.createStyleSheet(); 
-    	vmlcss.addRule("v\\:roundrect", "behavior: url(#default#VML)");
-	    vmlcss.addRule("v\\:fill", "behavior: url(#default#VML)"); 
+    	vmlcss.addRule("vml\\:roundrect", "behavior: url(#default#VML)");
+	    vmlcss.addRule("vml\\:fill", "behavior: url(#default#VML)"); 
 	    vmlcss.title = "VML"; 
-	    css2 = window.document.createStyleSheet(); 
-	    css2.addRule("."+clsid , "background:transparent !important; border:0 transparent !important;"); 
-	    css2.disabled = 'disabled'
+	    //css2 = window.document.createStyleSheet(); 
+	    vmlcss.addRule("."+clsid , "background:transparent !important; border:0 transparent !important;"); 
+	    //css2.disabled = 'disabled'
 	}
 			
 	// find the existing element styles from context -- these will be worked into the RECT/FILL elements. 
@@ -63,13 +55,11 @@ function oncontentready(clsid){
 		strokeWeight = parseInt(s["borderWidth"]),
 		stroked = "true",
 		arcSize = Math.min(parseInt( w3 || mz || wk || kn || 0 ) / Math.min(w, h), 1),
-		rect = document.createElement("v:roundrect"),
-		//fill = document.createElement("v:fill"),
-		bodyBack = window.document.body.currentStyle.backgroundColor,
+		rect = document.createElement("vml:roundrect"),
 		isIE6 = /msie|MSIE 6/.test(navigator.userAgent);
 		
 	// vml assumes transparent means black. none works.
-	fillColor === 'transparent' ? 'none' : fillColor ;
+	fillColor = fillColor === 'transparent' ? 'none' : fillColor ;
 	
 	// when border not present, use fill details
 	if (isNaN(strokeWeight)) {
@@ -103,7 +93,7 @@ function oncontentready(clsid){
 	rect.style.zIndex = -1;
 	
 	if( fillSrc !== 'none' ) { 
-    	var fill = document.createElement("v:fill")
+    	var fill = document.createElement("vml:fill")
     	fill.src = fillSrc;
     	fill.type = "tile";
     	rect.appendChild(fill)	
