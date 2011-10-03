@@ -1,0 +1,118 @@
+
+--Do not remove this if you are using--
+Original Author: Remiz Rahnas
+Original Author URL: http://www.htmlremix.com
+Published date: 2008/09/24
+
+Changes by Nick Fetchak:
+- IE8 standards mode compatibility
+- VML elements now positioned behind original box rather than inside of it - should be less prone to breakage
+Published date : 2009/11/18
+
+Changes by Tyler Waters, BCGOV
+- fixed 'createStyleSheet' invalid operation issue
+- revised positioning and removed resize code
+- various other improvements
+Published date: 2011-09-29
+
+<public:attach event="ondocumentready" onevent="ondocumentready()" />
+
+<public:attach event="oncontentready" onevent="oncontentready('v08vnSVo78t4JfjH')" />
+
+<script type="text/javascript">
+
+var css2
+function ondocumentready(){
+    //console.log("ondocumentready: " + this.id)
+    if( css2 ) { css2.disabled = false }
+}
+
+function oncontentready(clsid){
+
+    //console.log("oncontentreaday: " + this.id)
+    // make sure we aren't running this more than once on the same element
+
+    if (this.className.match(clsid)) { return(false); }
+  	// add VML bits to the document (v: namespace, as well as default style rule that must be present for VML )
+  	
+	if (!document.namespaces.v) { document.namespaces.add("v", "urn:schemas-microsoft-com:vml"); }
+	for( var s=window.document.styleSheets, x=s.length-1; x>=0; x-=1 ) if(s[x].title==="VML") break; 
+	if( x === -1 ) {  
+	    var vmlcss = window.document.createStyleSheet(); 
+    	vmlcss.addRule("v\\:roundrect", "behavior: url(#default#VML)");
+	    vmlcss.addRule("v\\:fill", "behavior: url(#default#VML)"); 
+	    vmlcss.title = "VML"; 
+	    css2 = window.document.createStyleSheet(); 
+	    css2.addRule("."+clsid , "background:transparent !important; border:0 transparent !important;"); 
+	    css2.disabled = 'disabled'
+	}
+			
+	// find the existing element styles from context -- these will be worked into the RECT/FILL elements. 
+	
+	var el = this,
+		w = el.offsetWidth, 
+		h = el.offsetHeight,
+		s = el.currentStyle,
+		mz = s["-moz-border-radius"],
+		wk = s["-webkit-border-radius"],
+		w3 = s["border-radius"],
+		kn = s["-khtml-border-radius"],
+		fillColor = s["backgroundColor"],
+		fillSrc = (s["backgroundImage"] || "").replace(/^url\(["']?(.+?)["']?\)$/, "$1"),
+		strokeColor = s["borderColor"],
+		strokeWeight = parseInt(s["borderWidth"]),
+		stroked = "true",
+		arcSize = Math.min(parseInt( w3 || mz || wk || kn || 0 ) / Math.min(w, h), 1),
+		rect = document.createElement("v:roundrect"),
+		//fill = document.createElement("v:fill"),
+		bodyBack = window.document.body.currentStyle.backgroundColor,
+		isIE6 = /msie|MSIE 6/.test(navigator.userAgent);
+		
+	// vml assumes transparent means black. none works.
+	fillColor === 'transparent' ? 'none' : fillColor ;
+	
+	// when border not present, use fill details
+	if (isNaN(strokeWeight)) {
+		strokeWeight = 0;
+		strokeColor = fillColor;
+		stroked = "false";
+	}
+	
+	// when position isn't relative/absolute/fixed, set to relative.
+	// this is important, because the RECT uses position:absolute. 
+	if( s.position === "static" ) { el.style.position = "relative"; }
+	
+	// IE6 doesn't support transparent borders, use padding to offset original element
+	if (isIE6 && (strokeWeight > 0)) {
+		el.style.borderStyle = "none";
+		el.style.paddingTop = parseInt(s.paddingTop || 0) + strokeWeight;
+		el.style.paddingBottom = parseInt(s.paddingBottom || 0) + strokeWeight;
+	}
+	
+	rect.arcsize = arcSize + "px";
+	rect.strokecolor = strokeColor;
+	rect.strokeWeight = strokeWeight + "px";
+	rect.stroked = stroked;
+	rect.style.display = "block";
+	rect.style.position = "absolute";
+	rect.style.top = "0";
+	rect.style.left = "0";
+	rect.style.width = "100%";
+	rect.style.height = "100%";
+	rect.style.antialias = true;
+	rect.style.zIndex = -1;
+	
+	if( fillSrc !== 'none' ) { 
+    	var fill = document.createElement("v:fill")
+    	fill.src = fillSrc;
+    	fill.type = "tile";
+    	rect.appendChild(fill)	
+	}
+	else {rect.fillcolor = fillColor }
+	
+	el.appendChild( rect );
+  	el.className = this.className.concat(" ", clsid);
+}
+
+</script>
+
